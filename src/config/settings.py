@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
 
     # apps
-    "users.apps.UsersConfig"
+    "users.apps.UsersConfig",
+    "blog.apps.BlogConfig"
 ]
 
 MIDDLEWARE = [
@@ -98,6 +99,8 @@ AUTH_USER_MODEL = "users.User"
 
 # Rest Framework
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'common.api.pagination.PageCountPagination',
+    'PAGE_SIZE': 10,
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
