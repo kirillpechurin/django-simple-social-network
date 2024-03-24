@@ -14,6 +14,11 @@ class RegistrationSerializer(serializers.Serializer):
     first_name = serializers.CharField(required=True, max_length=150)
     last_name = serializers.CharField(required=True, max_length=150)
 
+    class Meta:
+        validators = [
+            validators.PasswordEqualValidator()
+        ]
+
     def validate_username(self, value):
         if User.objects.filter(username=User.normalize_username(value)).exists():
             raise serializers.ValidationError("Username already exists.")

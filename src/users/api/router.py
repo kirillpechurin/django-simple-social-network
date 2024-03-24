@@ -26,4 +26,14 @@ urlpatterns.extend([
         "post": "logout"
     })),
 
+    # Account
+    path("account", viewsets.AccountViewSet.as_view({
+        "get": "retrieve",
+        "put": "update"
+    })),
+
+    path("account/password", viewsets.PasswordViewSet.as_view({
+        "post": "update",
+    }))
+
 ])

@@ -2,6 +2,7 @@ import re
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator, MaxLengthValidator
+from rest_framework import serializers
 
 
 class AggregatedValidator:
@@ -53,3 +54,13 @@ class PasswordValidator(AggregatedValidator):
         CapitalLetterValidator(),
         SpecialSymbolValidator()
     ]
+
+
+class PasswordEqualValidator:
+    requires_context = False
+
+    def __call__(self, attrs):
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({
+                "password2": "Password invalid."
+            })
