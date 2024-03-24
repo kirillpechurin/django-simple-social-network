@@ -3,12 +3,22 @@ from rest_framework import serializers
 from blog.models import Post
 
 
-class PostListSerializer(serializers.ModelSerializer):
+class PostLikesSerializerMixin(metaclass=serializers.SerializerMetaclass):
+    count_likes = serializers.SerializerMethodField(method_name="get_count_likes")
+
+    def get_count_likes(self, post: Post) -> int:
+        return post.likes.count()
+
+
+class PostListSerializer(PostLikesSerializerMixin,
+                         serializers.ModelSerializer):
+
     class Meta:
         model = Post
         fields = (
             "id",
             "content",
+            "count_likes",
             "created_at",
             "updated_at"
         )
