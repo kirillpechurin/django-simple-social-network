@@ -40,6 +40,7 @@ class PostCreateAPITestCase(_BaseTestCase):
         post = Post.objects.get()
         self.assertEqual(data.pop("id"), post.pk)
         self.assertEqual(data.pop("content"), post.content)
+        self.assertEqual(data.pop("count_likes"), post.likes.count())
         self.assertIsNotNone(data.pop("created_at"))
         self.assertIsNotNone(data.pop("updated_at"))
 
