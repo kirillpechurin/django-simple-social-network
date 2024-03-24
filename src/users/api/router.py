@@ -10,6 +10,10 @@ urlpatterns = router.urls
 urlpatterns.extend([
 
     # Auth
+    path('auth/registration', viewsets.AuthViewSet.as_view({
+        "post": "registration"
+    })),
+
     path('auth/login', viewsets.AuthViewSet.as_view({
         "post": "login"
     })),
