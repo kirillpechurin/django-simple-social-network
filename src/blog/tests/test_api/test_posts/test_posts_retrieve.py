@@ -2,7 +2,7 @@ from django.test import tag
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from blog.models import Post
+from blog.models import Post, PostLike
 from users.models import User
 
 
@@ -50,3 +50,19 @@ class PostRetrieveAPITestCase(_BaseTestCase):
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(str(resp.data["detail"]), "Authentication credentials were not provided.")
+
+    def test_with_likes(self):
+        user_2 = User.objects.create_user(username="test-2")
+        user_3 = User.objects.create_user(username="test-3")
+        PostLike.objects.bulk_create([
+            PostLike(
+                user_id=user.pk,
+                post_id=self.post.pk
+            )
+            for user in [user_2, user_3]
+        ])
+
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.data["id"], self.post.pk)
+        self.assertEqual(resp.data["count_likes"], self.post.likes.count())
+        self.assertEqual(resp.data["count_likes"], 2)

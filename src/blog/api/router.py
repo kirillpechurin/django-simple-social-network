@@ -21,4 +21,9 @@ urlpatterns.extend([
         "delete": "destroy"
     })),
 
+    path("posts/<int:pk>/like", viewsets.PostLikeViewSet.as_view({
+        "post": "create",
+        "delete": "destroy",
+    })),
+
 ])
