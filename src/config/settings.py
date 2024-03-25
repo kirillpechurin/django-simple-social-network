@@ -27,7 +27,8 @@ INSTALLED_APPS = [
 
     # apps
     "users.apps.UsersConfig",
-    "blog.apps.BlogConfig"
+    "blog.apps.BlogConfig",
+    "notifications.apps.NotificationsConfig"
 ]
 
 MIDDLEWARE = [
