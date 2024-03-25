@@ -7,6 +7,16 @@ class User(AbstractUser):
     Extended user model.
     """
 
+    email = models.EmailField(
+        verbose_name="email address",
+        unique=True
+    )
+
+    is_email_confirmed = models.BooleanField(
+        verbose_name="email is verified",
+        default=False
+    )
+
     address = models.TextField(
         verbose_name="address",
         null=True,
