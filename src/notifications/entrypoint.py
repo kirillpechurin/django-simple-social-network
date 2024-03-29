@@ -1,4 +1,5 @@
 class Handler:
 
-    def accept(self, *args, **kwargs):
+    @classmethod
+    def accept(cls, action: str, **kwargs):
         raise NotImplementedError
