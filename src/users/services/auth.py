@@ -36,10 +36,13 @@ class AuthService:
 
         user = User.objects.filter(id=uid).first()
         if not user:
-            raise custom_exceptions.BadRequest("Invalid token", code="confirm_email_invalid_token")
+            raise custom_exceptions.BadRequest("Invalid token.", code="confirm_email_invalid_token")
 
-        if auth_tokens.ConfirmEmailTokenGenerator().check_token(user, data["token"]):
-            raise custom_exceptions.BadRequest("Invalid token", code="confirm_email_invalid_token")
+        if not auth_tokens.ConfirmEmailTokenGenerator().check_token(user, data["token"]):
+            raise custom_exceptions.BadRequest("Invalid token.", code="confirm_email_invalid_token")
+
+        if user.is_email_confirmed:
+            raise custom_exceptions.BadRequest("Already confirmed.", code="already_confirmed")
 
         user.is_email_confirmed = True
         user.save(update_fields=["is_email_confirmed"])
@@ -52,8 +55,11 @@ class AuthService:
         if not user:
             return
 
+        if not user.is_active:
+            raise custom_exceptions.BadRequest("User is not active.", code="user_is_not_active")
+
         if not user.is_email_confirmed:
-            raise custom_exceptions.BadRequest("Email not confirmed", code="email_not_confirmed")
+            raise custom_exceptions.BadRequest("Email not confirmed.", code="email_not_confirmed")
 
         uid = auth_tokens.UidGenerator().make(user)
         token = auth_tokens.PasswordResetTokenGenerator().make_token(user)
@@ -73,10 +79,10 @@ class AuthService:
 
         user = User.objects.filter(id=uid).first()
         if not user:
-            raise custom_exceptions.BadRequest("Invalid token", code="reset_password_invalid_token")
+            raise custom_exceptions.BadRequest("Invalid token.", code="reset_password_invalid_token")
 
-        if auth_tokens.PasswordResetTokenGenerator().check_token(user, data["token"]):
-            raise custom_exceptions.BadRequest("Invalid token", code="reset_password_invalid_token")
+        if not auth_tokens.PasswordResetTokenGenerator().check_token(user, data["token"]):
+            raise custom_exceptions.BadRequest("Invalid token.", code="reset_password_invalid_token")
 
         user.set_password(data["password"])
         user.save(update_fields=["password"])

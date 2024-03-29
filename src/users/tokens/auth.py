@@ -8,11 +8,11 @@ from common import tokens as custom_tokens
 class UidGenerator:
 
     def make(self, user):
-        return urlsafe_base64_encode(force_bytes(user.pk))
+        return urlsafe_base64_encode(force_bytes(user.id))
 
     def get(self, value):
         try:
-            return urlsafe_base64_decode(value).decode()
+            return int(urlsafe_base64_decode(value).decode())
         except Exception as ex:
             return None
 
