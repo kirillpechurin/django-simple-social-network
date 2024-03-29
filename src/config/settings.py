@@ -141,3 +141,6 @@ SIMPLE_JWT = {
 # Auth
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 60 * 60 * 24 * 3))  # Default: 3 days.
 CONFIRM_EMAIL_TIMEOUT = int(os.getenv("CONFIRM_EMAIL_TIMEOUT", 60 * 60 * 24 * 10))  # Default 10 days.
+
+# Hosts
+PUBLIC_HOST = os.getenv("PUBLIC_HOST", "REPLACE_ME").rstrip("/")
