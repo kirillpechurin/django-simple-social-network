@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 class MockTestCaseMixin:
 
-    # Запуск мока
     def _mock(self,
               target: str):
         patcher = patch(target)

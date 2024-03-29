@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from users.models import User
+from users.services.auth import AuthService
 from . import validators
-from ...services.auth import AuthService
 
 
 class RegistrationSerializer(serializers.Serializer):
