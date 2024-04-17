@@ -6,4 +6,5 @@ urlpatterns = [
 
     path("api/v1/", include("users.api.router")),
     path("api/v1/", include("blog.api.router")),
+    path("api/v1/", include("notifications.api.router")),
 ]
