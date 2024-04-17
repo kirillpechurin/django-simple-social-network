@@ -100,7 +100,12 @@ class PostLikeDestroyAPITestCase(_BaseTestCase):
         self.notifications_accept_mock.assert_called_once_with(
             action="BLOG_POSTS_LIKE_REMOVE",
             data={
-                "post_id": self.post.pk,
-                "user_id": self.user_1.pk
+                "post": {
+                    "id": self.post.pk,
+                    "user_id": self.post.user_id
+                },
+                "from_user": {
+                    "id": self.user_1.pk
+                }
             }
         )
