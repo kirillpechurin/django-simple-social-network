@@ -1,10 +1,11 @@
 from django.test import tag
 from rest_framework.test import APITestCase
 
+from common.tests.mixins import MockTestCaseMixin
 from users.models import User
 
 
-class _BaseTestCase(APITestCase):
+class _BaseTestCase(APITestCase, MockTestCaseMixin):
 
     def setUp(self) -> None:
         super().setUp()
@@ -17,8 +18,13 @@ class _BaseTestCase(APITestCase):
             "password": "passworD123!",
             "password2": "passworD123!",
             "first_name": "John",
-            "last_name": "Doe"
+            "last_name": "Doe",
+            "email": "test@gmail.com"
         }
+
+        self.request_confirm_email_mock = self._mock(
+            "users.services.auth.AuthService.request_confirm_email"
+        )
 
 
 @tag("api-tests", "auth")
@@ -40,7 +46,7 @@ class AuthRegistrationAPITestCase(_BaseTestCase):
         self.assertEqual(user.first_name, self.data["first_name"])
         self.assertEqual(user.last_name, self.data["last_name"])
         self.assertEqual(user.check_password(self.data["password"]), True)
-        self.assertEqual(user.email, "")
+        self.assertEqual(user.email, self.data["email"])
         self.assertEqual(user.is_staff, False)
         self.assertEqual(user.is_superuser, False)
         self.assertEqual(user.is_active, True)
@@ -66,6 +72,28 @@ class AuthRegistrationAPITestCase(_BaseTestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(str(resp.data["username"][0]), "Username already exists.")
 
+    def test_email_already_exists(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(str(resp.data["email"][0]), "Email already exists.")
+
+    def test_mock_request_confirm_email(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+
+        user = User.objects.get()
+
+        self.request_confirm_email_mock.assert_called_once()
+
+        call = self.request_confirm_email_mock.mock_calls[0]
+        self.assertEqual(len(call.args), 1)
+        self.assertEqual(len(call.kwargs.keys()), 0)
+        self.assertIsInstance(call.args[0], User)
+        self.assertEqual(call.args[0].pk, user.pk)
+
 
 @tag("api-tests", "auth")
 class AuthRegistrationValidationAPITestCase(_BaseTestCase):
@@ -87,6 +115,24 @@ class AuthRegistrationValidationAPITestCase(_BaseTestCase):
         resp = self.client.post(self.url, data=self.data)
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(str(resp.data["username"][0]), "This field may not be null.")
+
+    def test_email_empty(self):
+        self.data["email"] = ""
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(str(resp.data["email"][0]), "This field may not be blank.")
+
+    def test_email_exclude(self):
+        self.data.pop("email")
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(str(resp.data["email"][0]), "This field is required.")
+
+    def test_email_null(self):
+        self.data["email"] = None
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(str(resp.data["email"][0]), "This field may not be null.")
 
     def test_password_empty(self):
         self.data["password"] = ""

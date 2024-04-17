@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from users.models import User
 from . import validators
-from ...models import User
 
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -25,3 +25,21 @@ class PasswordUpdateSerializer(serializers.Serializer):
         user.set_password(validated_data["password"])
         user.save(update_fields=["password"])
         return user
+
+
+class PasswordForgotSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    uid = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, validators=[
+        validators.PasswordValidator()
+    ])
+    password2 = serializers.CharField(required=True)
+
+    class Meta:
+        validators = [
+            validators.PasswordEqualValidator()
+        ]

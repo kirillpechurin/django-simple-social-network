@@ -14,6 +14,22 @@ urlpatterns.extend([
         "post": "registration"
     })),
 
+    path('auth/forgot-password', viewsets.PasswordViewSet.as_view({
+        "post": "forgot"
+    })),
+
+    path('auth/reset-password', viewsets.PasswordViewSet.as_view({
+        "post": "reset"
+    })),
+
+    path('auth/confirm-email', viewsets.AuthViewSet.as_view({
+        "post": "confirm_email"
+    })),
+
+    path('auth/resend-confirm-email', viewsets.AuthViewSet.as_view({
+        "post": "resend_confirm_email"
+    })),
+
     path('auth/login', viewsets.AuthViewSet.as_view({
         "post": "login"
     })),
