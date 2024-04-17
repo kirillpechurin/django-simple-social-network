@@ -137,3 +137,21 @@ SIMPLE_JWT = {
 
     "JTI_CLAIM": "jti",
 }
+
+# Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = os.getenv("EMAIL_HOST", "REPLACE_ME")
+EMAIL_PORT = os.getenv("EMAIL_PORT", "REPLACE_ME")
+
+EMAIL_USE_LOCALTIME = False
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "REPLACE_ME")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "REPLACE_ME")
+EMAIL_USE_TLS = bool(int(os.getenv("EMAIL_USE_TLS", 0)))
+EMAIL_USE_SSL = bool(int(os.getenv("EMAIL_USE_SSL", 0)))
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE = None
+EMAIL_TIMEOUT = None
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "REPLACE_ME")
