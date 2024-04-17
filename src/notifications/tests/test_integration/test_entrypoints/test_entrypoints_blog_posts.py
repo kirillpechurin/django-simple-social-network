@@ -71,7 +71,7 @@ class NotificationsBlogPostsEntrypointIntegrationTestCase(TestCase):
     def test_blog_posts_like_remove_other_user(self):
         self.test_blog_posts_like()
 
-        other_user = User.objects.create(username="test-2")
+        other_user = User.objects.create(email="test-2@gmail.com", username="test-2")
 
         self._call(
             action="BLOG_POSTS_LIKE_REMOVE",
