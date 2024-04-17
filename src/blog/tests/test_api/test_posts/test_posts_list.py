@@ -12,9 +12,9 @@ class _BaseTestCase(APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.user_1 = User.objects.create_user(username="test-1")
-        cls.user_2 = User.objects.create_user(username="test-2")
-        cls.user_3 = User.objects.create_user(username="test-3")
+        cls.user_1 = User.objects.create_user(email="test-1@gmail.com", username="test-1")
+        cls.user_2 = User.objects.create_user(email="test-2@gmail.com", username="test-2")
+        cls.user_3 = User.objects.create_user(email="test-3@gmail.com", username="test-3")
         for user in [cls.user_1, cls.user_2, cls.user_3]:
             for i in range(0, 5):
                 Post.objects.create(user_id=user.pk, content=f"sample-{i}-{user.pk}")
