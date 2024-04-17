@@ -46,5 +46,59 @@ class NotificationsEntrypointIntegrationTestCase(TestCase):
                 }
             )
 
+    def test_blog_posts_like(self):
+        with patch("notifications.entrypoints.blog_posts.BlogPostsEntrypoint.accept") as mock:
+            self._call(
+                action="BLOG_POSTS_LIKE",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user_id": 1,
+                    },
+                    "from_user": {
+                        "id": 2
+                    }
+                }
+            )
+            mock.assert_called_once_with(
+                "BLOG_POSTS_LIKE",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user_id": 1,
+                    },
+                    "from_user": {
+                        "id": 2
+                    }
+                }
+            )
+
+    def test_blog_posts_like_remove(self):
+        with patch("notifications.entrypoints.blog_posts.BlogPostsEntrypoint.accept") as mock:
+            self._call(
+                action="BLOG_POSTS_LIKE_REMOVE",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user_id": 1,
+                    },
+                    "from_user": {
+                        "id": 2
+                    }
+                }
+            )
+            mock.assert_called_once_with(
+                "BLOG_POSTS_LIKE_REMOVE",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user_id": 1,
+                    },
+                    "from_user": {
+                        "id": 2
+                    }
+                }
+            )
+
     def test_unknown_action(self):
         self.assertRaises(NotImplementedError, self._call, action="UNKNOWN_ACTION", data={})
