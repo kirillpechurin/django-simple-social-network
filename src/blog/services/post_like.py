@@ -21,8 +21,13 @@ class PostLikeService:
         NotificationsHandler.accept(
             action="BLOG_POSTS_LIKE",
             data={
-                "post_id": post.pk,
-                "user_id": user.pk
+                "post": {
+                    "id": post.pk,
+                    "user_id": post.user_id
+                },
+                "from_user": {
+                    "id": user.pk
+                }
             }
         )
 
@@ -40,7 +45,12 @@ class PostLikeService:
         NotificationsHandler.accept(
             action="BLOG_POSTS_LIKE_REMOVE",
             data={
-                "post_id": post.pk,
-                "user_id": user.pk
+                "post": {
+                    "id": post.pk,
+                    "user_id": post.user_id
+                },
+                "from_user": {
+                    "id": user.pk
+                }
             }
         )
