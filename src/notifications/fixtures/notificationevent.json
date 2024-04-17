@@ -1,0 +1,9 @@
+[
+  {
+    "model": "notifications.notificationevent",
+    "pk": 1,
+    "fields": {
+      "title": "Like post"
+    }
+  }
+]
