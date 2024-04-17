@@ -3,10 +3,12 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from blog.models import Post, PostLike
+from common.tests.mixins import MockTestCaseMixin
 from users.models import User
 
 
-class _BaseTestCase(APITestCase):
+class _BaseTestCase(APITestCase,
+                    MockTestCaseMixin):
 
     @classmethod
     def setUpTestData(cls):
@@ -27,8 +29,14 @@ class _BaseTestCase(APITestCase):
         self.post = Post.objects.filter(user_id=self.user_2.pk).order_by("-created_at").first()
         self.url = f"/api/v1/posts/{self.post.pk}/like"
 
+        self.notifications_accept_mock = self._mock(
+            "notifications.entrypoint.Handler.accept"
+        )
+
         resp = self.client.post(self.url)
         self.assertEqual(resp.status_code, 201)
+
+        self.notifications_accept_mock.reset_mock()
 
 
 @tag("api-tests", "blog", "posts", "post_likes")
@@ -84,3 +92,20 @@ class PostLikeDestroyAPITestCase(_BaseTestCase):
         post_like = PostLike.objects.get()
         self.assertEqual(post_like.user_id, self.user_3.pk)
         self.assertEqual(post_like.post_id, self.post.pk)
+
+    def test_mock(self):
+        resp = self.client.delete(self.url)
+        self.assertEqual(resp.status_code, 204)
+
+        self.notifications_accept_mock.assert_called_once_with(
+            action="BLOG_POSTS_LIKE_REMOVE",
+            data={
+                "post": {
+                    "id": self.post.pk,
+                    "user_id": self.post.user_id
+                },
+                "from_user": {
+                    "id": self.user_1.pk
+                }
+            }
+        )
