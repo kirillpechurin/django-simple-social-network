@@ -1,0 +1,9 @@
+[
+  {
+    "model": "notifications.systemnotificationtype",
+    "pk": 1,
+    "fields": {
+      "title": "Like posts"
+    }
+  }
+]
