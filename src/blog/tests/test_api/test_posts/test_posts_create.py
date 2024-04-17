@@ -12,7 +12,7 @@ class _BaseTestCase(APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.user = User.objects.create_user(username="test-1")
+        cls.user = User.objects.create_user(email="test-1@gmail.com", username="test-1")
 
     def setUp(self) -> None:
         super().setUp()
