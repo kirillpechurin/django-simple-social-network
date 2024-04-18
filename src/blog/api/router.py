@@ -40,4 +40,17 @@ urlpatterns.extend([
         "get": "retrieve",
     })),
 
+    path("blog/subscriptions", viewsets.SubscriptionViewSet.as_view({
+        "get": "list",
+        "post": "create",
+    })),
+
+    path("blog/subscriptions/<int:pk>", viewsets.SubscriptionViewSet.as_view({
+        "delete": "destroy",
+    })),
+
+    path("blog/subscribers", viewsets.SubscriberViewSet.as_view({
+        "get": "list",
+    })),
+
 ])
