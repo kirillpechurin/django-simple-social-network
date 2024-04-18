@@ -26,4 +26,14 @@ urlpatterns.extend([
         "delete": "destroy",
     })),
 
+    path("posts/<int:post_id>/comments", viewsets.PostCommentViewSet.as_view({
+        "get": "list",
+        "post": "create",
+    })),
+
+    path("posts/<int:post_id>/comments/<int:pk>", viewsets.PostCommentViewSet.as_view({
+        "patch": "update",
+        "delete": "destroy",
+    })),
+
 ])
