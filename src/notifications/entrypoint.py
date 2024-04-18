@@ -4,13 +4,16 @@ class Handler:
     def _get_entrypoint(cls, action: str):
         from notifications.entrypoints import (
             UserEntrypoint,
-            BlogPostsEntrypoint
+            BlogPostsEntrypoint,
+            BlogSubscriptionsEntrypoint
         )
 
         if action.startswith("USER_"):
             return UserEntrypoint()
         elif action.startswith("BLOG_POSTS"):
             return BlogPostsEntrypoint()
+        elif action.startswith("BLOG_SUBSCRIPTIONS"):
+            return BlogSubscriptionsEntrypoint()
         else:
             raise NotImplementedError
 
