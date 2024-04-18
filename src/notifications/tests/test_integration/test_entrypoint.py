@@ -127,5 +127,61 @@ class NotificationsEntrypointIntegrationTestCase(TestCase):
                 }
             )
 
+    def test_blog_subscriptions_new(self):
+        with patch("notifications.entrypoints.blog_subscriptions.BlogSubscriptionsEntrypoint.accept") as mock:
+            self._call(
+                action="BLOG_SUBSCRIPTIONS_NEW",
+                data={
+                    "to_user": {
+                        "id": 1,
+                    },
+                    "from_user": {
+                        "id": 2,
+                        "username": "sample"
+                    }
+                }
+            )
+            mock.assert_called_once_with(
+                "BLOG_SUBSCRIPTIONS_NEW",
+                data={
+                    "to_user": {
+                        "id": 1,
+                    },
+                    "from_user": {
+                        "id": 2,
+                        "username": "sample"
+                    }
+                }
+            )
+
+    def test_blog_posts_new(self):
+        with patch("notifications.entrypoints.blog_posts.BlogPostsEntrypoint.accept") as mock:
+            self._call(
+                action="BLOG_POSTS_NEW",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user": {
+                            "id": 1,
+                            "username": "sample"
+                        },
+                    },
+                    "to_user_ids": [1,2,3]
+                }
+            )
+            mock.assert_called_once_with(
+                "BLOG_POSTS_NEW",
+                data={
+                    "post": {
+                        "id": 1,
+                        "user": {
+                            "id": 1,
+                            "username": "sample"
+                        },
+                    },
+                    "to_user_ids": [1,2,3]
+                }
+            )
+
     def test_unknown_action(self):
         self.assertRaises(NotImplementedError, self._call, action="UNKNOWN_ACTION", data={})
