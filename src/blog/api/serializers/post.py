@@ -31,13 +31,6 @@ class PostSerializer(PostListSerializer):
 class PostCreateSerializer(serializers.Serializer):
     content = serializers.CharField(required=True, max_length=500)
 
-    def create(self, validated_data):
-        post = Post.objects.create(
-            user_id=self.context["request"].user.pk,
-            content=validated_data["content"]
-        )
-        return post
-
     def to_representation(self, instance):
         return PostSerializer(instance).data
 

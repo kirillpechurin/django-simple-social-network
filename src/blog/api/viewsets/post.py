@@ -10,6 +10,7 @@ from blog.api.serializers.post import (
     PostUpdateSerializer
 )
 from blog.models import Post
+from blog.services import PostService
 from common.api import pagination as custom_pagination
 
 
@@ -42,3 +43,10 @@ class PostViewSet(viewsets.ModelViewSet):
             return PostUpdateSerializer
         else:
             return self.serializer_class
+
+    def perform_create(self, serializer):
+        post = PostService.create(
+            user=self.request.user,
+            data=serializer.validated_data
+        )
+        serializer.instance = post
