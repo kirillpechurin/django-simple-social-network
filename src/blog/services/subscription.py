@@ -1,6 +1,7 @@
 from rest_framework import exceptions
 
 from blog.models import Subscription
+from notifications import Handler as NotificationsHandler
 from users.models import User
 
 
@@ -23,6 +24,20 @@ class SubscriptionService:
             to_user_id=to_user.pk,
             user_id=user.pk
         )
+
+        NotificationsHandler.accept(
+            action="BLOG_SUBSCRIPTIONS_NEW",
+            data={
+                "to_user": {
+                    "id": to_user.pk,
+                },
+                "from_user": {
+                    "id": user.pk,
+                    "username": user.username
+                }
+            }
+        )
+
         return subscription
 
     @staticmethod
