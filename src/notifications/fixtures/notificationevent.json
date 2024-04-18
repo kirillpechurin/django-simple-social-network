@@ -5,5 +5,12 @@
     "fields": {
       "title": "Like post"
     }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 2,
+    "fields": {
+      "title": "Comment post"
+    }
   }
 ]

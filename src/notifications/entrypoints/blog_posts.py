@@ -8,6 +8,8 @@ class BlogPostsEntrypoint:
             return self._blog_posts_like(**kwargs)
         elif action == "BLOG_POSTS_LIKE_REMOVE":
             return self._blog_posts_like_remove(**kwargs)
+        elif action == "BLOG_POSTS_NEW_COMMENT":
+            return self._blog_posts_new_comment(**kwargs)
         else:
             raise NotImplementedError
 
@@ -32,3 +34,16 @@ class BlogPostsEntrypoint:
             payload__post_id=data["post"]["id"],
             is_read=False
         ).delete()
+
+    def _blog_posts_new_comment(self,
+                                data: dict):
+        SystemNotification.objects.create(
+            user_id=data["post"]["user_id"],
+            type_id=SystemNotificationType.Handbook.BLOG_POSTS_COMMENTS.value,
+            event_id=NotificationEvent.Handbook.BLOG_POSTS_NEW_COMMENT.value,
+            message=f'New comment on your post.',
+            payload={
+                "post_id": data["post"]["id"],
+                "from_user_id": data["from_user"]["id"],
+            },
+        )
