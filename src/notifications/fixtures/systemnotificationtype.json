@@ -12,5 +12,19 @@
     "fields": {
       "title": "Comment posts"
     }
+  },
+  {
+    "model": "notifications.systemnotificationtype",
+    "pk": 3,
+    "fields": {
+      "title": "Blog Subscriptions"
+    }
+  },
+  {
+    "model": "notifications.systemnotificationtype",
+    "pk": 4,
+    "fields": {
+      "title": "Posts"
+    }
   }
 ]

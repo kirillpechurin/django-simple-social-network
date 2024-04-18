@@ -12,5 +12,19 @@
     "fields": {
       "title": "Comment post"
     }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 3,
+    "fields": {
+      "title": "New subscriber"
+    }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 4,
+    "fields": {
+      "title": "New post"
+    }
   }
 ]
