@@ -36,4 +36,8 @@ urlpatterns.extend([
         "delete": "destroy",
     })),
 
+    path("blog/users/<int:pk>", viewsets.BlogUserViewSet.as_view({
+        "get": "retrieve",
+    })),
+
 ])
