@@ -147,5 +147,32 @@ class NotificationsBlogPostsEntrypointIntegrationTestCase(TestCase):
         )
         self.assertEqual(SystemNotification.objects.count(), 1)
 
+    def test_blog_posts_new_comment(self):
+        self._call(
+            action="BLOG_POSTS_NEW_COMMENT",
+            data={
+                "post": {
+                    "id": 1,
+                    "user_id": self.post_user.pk,
+                },
+                "from_user": {
+                    "id": 2
+                }
+            }
+        )
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(SystemNotification.objects.count(), 1)
+
+        notification: SystemNotification = SystemNotification.objects.get()
+        self.assertEqual(notification.user_id, self.post_user.pk)
+        self.assertEqual(notification.type_id, SystemNotificationType.Handbook.BLOG_POSTS_COMMENTS.value)
+        self.assertEqual(notification.event_id, NotificationEvent.Handbook.BLOG_POSTS_NEW_COMMENT.value)
+        self.assertEqual(notification.message, "New comment on your post.")
+        self.assertEqual(notification.payload, {
+            "post_id": 1,
+            "from_user_id": 2,
+        })
+
     def test_unknown_action(self):
         self.assertRaises(NotImplementedError, self._call, action="UNKNOWN_ACTION", data={})
