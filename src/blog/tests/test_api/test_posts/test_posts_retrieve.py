@@ -12,7 +12,7 @@ class _BaseTestCase(APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.user = User.objects.create_user(username="test-1")
+        cls.user = User.objects.create_user(email="test-1@gmail.com", username="test-1")
 
         cls.post = Post.objects.create(user_id=cls.user.pk, content=f"sample-content")
 
@@ -52,8 +52,8 @@ class PostRetrieveAPITestCase(_BaseTestCase):
         self.assertEqual(str(resp.data["detail"]), "Authentication credentials were not provided.")
 
     def test_with_likes(self):
-        user_2 = User.objects.create_user(username="test-2")
-        user_3 = User.objects.create_user(username="test-3")
+        user_2 = User.objects.create_user(email="test-2@gmail.com", username="test-2")
+        user_3 = User.objects.create_user(email="test-3@gmail.com", username="test-3")
         PostLike.objects.bulk_create([
             PostLike(
                 user_id=user.pk,

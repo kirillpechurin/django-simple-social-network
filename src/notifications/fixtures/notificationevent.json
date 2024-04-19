@@ -1,0 +1,30 @@
+[
+  {
+    "model": "notifications.notificationevent",
+    "pk": 1,
+    "fields": {
+      "title": "Like post"
+    }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 2,
+    "fields": {
+      "title": "Comment post"
+    }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 3,
+    "fields": {
+      "title": "New subscriber"
+    }
+  },
+  {
+    "model": "notifications.notificationevent",
+    "pk": 4,
+    "fields": {
+      "title": "New post"
+    }
+  }
+]

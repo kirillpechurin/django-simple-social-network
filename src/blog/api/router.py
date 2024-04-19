@@ -26,4 +26,31 @@ urlpatterns.extend([
         "delete": "destroy",
     })),
 
+    path("posts/<int:post_id>/comments", viewsets.PostCommentViewSet.as_view({
+        "get": "list",
+        "post": "create",
+    })),
+
+    path("posts/<int:post_id>/comments/<int:pk>", viewsets.PostCommentViewSet.as_view({
+        "patch": "update",
+        "delete": "destroy",
+    })),
+
+    path("blog/users/<int:pk>", viewsets.BlogUserViewSet.as_view({
+        "get": "retrieve",
+    })),
+
+    path("blog/subscriptions", viewsets.SubscriptionViewSet.as_view({
+        "get": "list",
+        "post": "create",
+    })),
+
+    path("blog/subscriptions/<int:pk>", viewsets.SubscriptionViewSet.as_view({
+        "delete": "destroy",
+    })),
+
+    path("blog/subscribers", viewsets.SubscriberViewSet.as_view({
+        "get": "list",
+    })),
+
 ])

@@ -12,7 +12,7 @@ class _BaseTestCase(APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.user = User.objects.create_user(username="test-1")
+        cls.user = User.objects.create_user(email="test-1@gmail.com", username="test-1")
 
         cls.post = Post.objects.create(user_id=cls.user.pk, content=f"sample-content")
 
@@ -57,7 +57,7 @@ class PostUpdateAPITestCase(_BaseTestCase):
         self.assertEqual(resp.status_code, 404)
 
     def test_try_edit_not_self_post(self):
-        user = User.objects.create_user(username="test-2")
+        user = User.objects.create_user(email="test-2@gmail.com", username="test-2")
         client = self.client_class()
         client.force_authenticate(user=user, token=str(RefreshToken.for_user(user).access_token))
 

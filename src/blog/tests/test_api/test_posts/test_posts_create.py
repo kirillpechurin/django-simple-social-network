@@ -2,20 +2,26 @@ from django.test import tag
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from blog.models import Post
+from blog.models import Post, Subscription
+from common.tests.mixins import MockTestCaseMixin
 from users.models import User
 
 
-class _BaseTestCase(APITestCase):
+class _BaseTestCase(APITestCase,
+                    MockTestCaseMixin):
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.user = User.objects.create_user(username="test-1")
+        cls.user = User.objects.create_user(email="test-1@gmail.com", username="test-1")
 
     def setUp(self) -> None:
         super().setUp()
+
+        self.notifications_accept_mock = self._mock(
+            "notifications.entrypoint.Handler.accept"
+        )
 
         self.client.force_authenticate(user=self.user, token=str(RefreshToken.for_user(self.user).access_token))
 
@@ -59,6 +65,65 @@ class PostCreateAPITestCase(_BaseTestCase):
         resp = self.client.post(self.url, data=self.data)
         self.assertEqual(resp.status_code, 401)
         self.assertEqual(str(resp.data["detail"]), "Authentication credentials were not provided.")
+
+    def test_mock_default(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+
+        self.notifications_accept_mock.assert_not_called()
+
+    def test_mock_with_subscribers(self):
+        user_1 = self.user
+        user_2 = User.objects.create_user(email="test-2@gmail.com", username="test-2")
+        user_3 = User.objects.create_user(email="test-3@gmail.com", username="test-3")
+
+        Subscription.objects.create(to_user_id=user_1.pk, user_id=user_2.pk)
+        Subscription.objects.create(to_user_id=user_1.pk, user_id=user_3.pk)
+        Subscription.objects.create(to_user_id=user_2.pk, user_id=user_3.pk)
+        Subscription.objects.create(to_user_id=user_3.pk, user_id=user_1.pk)
+
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+        post = Post.objects.get(id=resp.data["id"])
+        self.notifications_accept_mock.assert_called_once_with(
+            action="BLOG_POSTS_NEW",
+            data={
+                "post": {
+                    "id": post.pk,
+                    "user": {
+                        "id": self.user.pk,
+                        "username": self.user.username
+                    }
+                },
+                "to_user_ids": [user_2.pk, user_3.pk]
+            }
+        )
+
+        self.notifications_accept_mock.reset_mock()
+
+        user_4 = User.objects.create_user(email="test-4@gmail.com", username="test-4")
+        user_5 = User.objects.create_user(email="test-5@gmail.com", username="test-5")
+
+        Subscription.objects.create(to_user_id=user_4.pk, user_id=user_5.pk)
+        Subscription.objects.create(to_user_id=user_1.pk, user_id=user_4.pk)
+        Subscription.objects.filter(to_user_id=user_1.pk, user_id=user_2.pk).delete()
+
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+        post = Post.objects.get(id=resp.data["id"])
+        self.notifications_accept_mock.assert_called_once_with(
+            action="BLOG_POSTS_NEW",
+            data={
+                "post": {
+                    "id": post.pk,
+                    "user": {
+                        "id": self.user.pk,
+                        "username": self.user.username
+                    }
+                },
+                "to_user_ids": [user_3.pk, user_4.pk]
+            }
+        )
 
 
 @tag("api-tests", "blog", "posts")

@@ -26,8 +26,10 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
 
     # apps
+    "common.apps.CommonConfig",
     "users.apps.UsersConfig",
-    "blog.apps.BlogConfig"
+    "blog.apps.BlogConfig",
+    "notifications.apps.NotificationsConfig"
 ]
 
 MIDDLEWARE = [
@@ -136,3 +138,28 @@ SIMPLE_JWT = {
 
     "JTI_CLAIM": "jti",
 }
+
+# Auth
+PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 60 * 60 * 24 * 3))  # Default: 3 days.
+CONFIRM_EMAIL_TIMEOUT = int(os.getenv("CONFIRM_EMAIL_TIMEOUT", 60 * 60 * 24 * 10))  # Default 10 days.
+
+# Hosts
+PUBLIC_HOST = os.getenv("PUBLIC_HOST", "REPLACE_ME").rstrip("/")
+
+# Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = os.getenv("EMAIL_HOST", "REPLACE_ME")
+EMAIL_PORT = os.getenv("EMAIL_PORT", "REPLACE_ME")
+
+EMAIL_USE_LOCALTIME = False
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "REPLACE_ME")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "REPLACE_ME")
+EMAIL_USE_TLS = bool(int(os.getenv("EMAIL_USE_TLS", 0)))
+EMAIL_USE_SSL = bool(int(os.getenv("EMAIL_USE_SSL", 0)))
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE = None
+EMAIL_TIMEOUT = None
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "REPLACE_ME")
