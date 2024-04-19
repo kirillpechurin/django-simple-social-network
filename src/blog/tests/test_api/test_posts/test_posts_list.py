@@ -2,7 +2,7 @@ from django.test import tag
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from blog.models import Post, PostLike
+from blog.models import Post, PostLike, Subscription
 from users.models import User
 
 
@@ -108,4 +108,101 @@ class PostListOrderingFilterAPITestCase(_BaseTestCase):
         resp = self.client.get(self.url, data={"ordering": "-created_at"})
 
         for item, post in zip(resp.data["results"], Post.objects.order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+    def _create_subscriptions(self):
+        Subscription.objects.create(to_user_id=self.user_1.pk, user_id=self.user_2.pk)
+
+        Subscription.objects.create(to_user_id=self.user_2.pk, user_id=self.user_3.pk)
+
+        Subscription.objects.create(to_user_id=self.user_3.pk, user_id=self.user_1.pk)
+
+    def test_by_from_subscriptions_asc(self):
+        self._create_subscriptions()
+        resp = self.client.get(self.url, data={"ordering": "from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_3 = Post.objects.filter(user_id=self.user_3.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"][0:10], Post.objects.exclude(
+            id__in=posts_from_user_3.values_list("id", flat=True)
+        ).order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+        for item, post in zip(resp.data["results"][10:], posts_from_user_3):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_3.count(), 5)
+
+        client_2 = self.client_class()
+        client_2.force_authenticate(user=self.user_2, token=str(RefreshToken.for_user(self.user_2).access_token))
+        resp = client_2.get(self.url, data={"ordering": "from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_1 = Post.objects.filter(user_id=self.user_1.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"][0:10], Post.objects.exclude(
+                id__in=posts_from_user_1.values_list("id", flat=True)
+        ).order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+        for item, post in zip(resp.data["results"][10:], posts_from_user_1):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_1.count(), 5)
+
+        client_3 = self.client_class()
+        client_3.force_authenticate(user=self.user_3, token=str(RefreshToken.for_user(self.user_3).access_token))
+        resp = client_3.get(self.url, data={"ordering": "from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_2 = Post.objects.filter(user_id=self.user_2.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"][0:10], Post.objects.exclude(
+                id__in=posts_from_user_2.values_list("id", flat=True)
+        ).order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+        for item, post in zip(resp.data["results"][10:], posts_from_user_2):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_2.count(), 5)
+
+    def test_by_from_subscriptions_desc(self):
+        self._create_subscriptions()
+        resp = self.client.get(self.url, data={"ordering": "-from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_3 = Post.objects.filter(user_id=self.user_3.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"], posts_from_user_3):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_3.count(), 5)
+
+        for item, post in zip(resp.data["results"][5:], Post.objects.exclude(
+            id__in=posts_from_user_3.values_list("id", flat=True)
+        ).order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+        client_2 = self.client_class()
+        client_2.force_authenticate(user=self.user_2, token=str(RefreshToken.for_user(self.user_2).access_token))
+        resp = client_2.get(self.url, data={"ordering": "-from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_1 = Post.objects.filter(user_id=self.user_1.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"], posts_from_user_1):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_1.count(), 5)
+
+        for item, post in zip(resp.data["results"][5:], Post.objects.exclude(
+                id__in=posts_from_user_1.values_list("id", flat=True)
+        ).order_by("-created_at")):
+            self.assertEqual(item["id"], post.pk)
+
+        client_3 = self.client_class()
+        client_3.force_authenticate(user=self.user_3, token=str(RefreshToken.for_user(self.user_3).access_token))
+        resp = client_3.get(self.url, data={"ordering": "-from_subscriptions"})
+        self.assertEqual(resp.data["count"], 15)
+
+        posts_from_user_2 = Post.objects.filter(user_id=self.user_2.pk).order_by("-created_at")
+        for item, post in zip(resp.data["results"], posts_from_user_2):
+            self.assertEqual(item["id"], post.pk)
+        self.assertEqual(posts_from_user_2.count(), 5)
+
+        for item, post in zip(resp.data["results"][5:], Post.objects.exclude(
+                id__in=posts_from_user_2.values_list("id", flat=True)
+        ).order_by("-created_at")):
             self.assertEqual(item["id"], post.pk)
