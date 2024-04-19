@@ -3,10 +3,12 @@ from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from blog.models import Subscription
+from common.tests.mixins import MockTestCaseMixin
 from users.models import User
 
 
-class _BaseTestCase(APITestCase):
+class _BaseTestCase(APITestCase,
+                    MockTestCaseMixin):
 
     @classmethod
     def setUpTestData(cls):
@@ -18,6 +20,10 @@ class _BaseTestCase(APITestCase):
 
     def setUp(self) -> None:
         super().setUp()
+
+        self.notifications_accept_mock = self._mock(
+            "notifications.entrypoint.Handler.accept"
+        )
 
         self.client.force_authenticate(user=self.user_3, token=str(RefreshToken.for_user(self.user_3).access_token))
 
@@ -75,6 +81,23 @@ class SubscriptionCreateAPITestCase(_BaseTestCase):
         resp = self.client.post(self.url, data=self.data)
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(str(resp.data["detail"]), "You do not have permission to perform this action.")
+
+    def test_mock(self):
+        resp = self.client.post(self.url, data=self.data)
+        self.assertEqual(resp.status_code, 201)
+
+        self.notifications_accept_mock.assert_called_once_with(
+            action="BLOG_SUBSCRIPTIONS_NEW",
+            data={
+                "to_user": {
+                    "id": self.data["to_user_id"],
+                },
+                "from_user": {
+                    "id": self.user_3.pk,
+                    "username": self.user_3.username
+                }
+            }
+        )
 
 
 @tag("api-tests", "blog", "blog-subscriptions")
