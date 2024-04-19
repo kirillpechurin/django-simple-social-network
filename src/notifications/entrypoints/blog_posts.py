@@ -10,6 +10,8 @@ class BlogPostsEntrypoint:
             return self._blog_posts_like_remove(**kwargs)
         elif action == "BLOG_POSTS_NEW_COMMENT":
             return self._blog_posts_new_comment(**kwargs)
+        elif action == "BLOG_POSTS_NEW":
+            return self._blog_posts_new(**kwargs)
         else:
             raise NotImplementedError
 
@@ -47,3 +49,22 @@ class BlogPostsEntrypoint:
                 "from_user_id": data["from_user"]["id"],
             },
         )
+
+    def _blog_posts_new(self,
+                        data: dict):
+        SystemNotification.objects.bulk_create([
+            SystemNotification(
+                user_id=user_id,
+                type_id=SystemNotificationType.Handbook.BLOG_POSTS.value,
+                event_id=NotificationEvent.Handbook.BLOG_POSTS_NEW.value,
+                message=f'New post from {data["post"]["user"]["username"]}.',
+                payload={
+                    "post_id": data["post"]["id"],
+                    "from_user": {
+                        "id": data["post"]["user"]["id"],
+                        "username": data["post"]["user"]["username"]
+                    }
+                },
+            )
+            for user_id in data["to_user_ids"]
+        ])

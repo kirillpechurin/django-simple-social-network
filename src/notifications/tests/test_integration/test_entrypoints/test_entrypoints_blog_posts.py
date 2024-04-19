@@ -16,7 +16,7 @@ class NotificationsBlogPostsEntrypointIntegrationTestCase(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
 
-        cls.post_user = User.objects.create_user(username="test-1")
+        cls.post_user = User.objects.create_user(email="test-1@gmail.com", username="test-1")
 
     def _call(self,
               action: str,
@@ -172,6 +172,54 @@ class NotificationsBlogPostsEntrypointIntegrationTestCase(TestCase):
         self.assertEqual(notification.payload, {
             "post_id": 1,
             "from_user_id": 2,
+        })
+
+    def test_blog_posts_new(self):
+        user_2 = User.objects.create_user(email="test-2@gmail.com", username="test-2")
+        user_3 = User.objects.create_user(email="test-3@gmail.com", username="test-3")
+        user_4 = User.objects.create_user(email="test-4@gmail.com", username="test-4")
+
+        self._call(
+            action="BLOG_POSTS_NEW",
+            data={
+                "post": {
+                    "id": 10,
+                    "user": {
+                        "id": self.post_user.pk,
+                        "username": self.post_user.username
+                    },
+                },
+                "to_user_ids": [user_2.pk, user_4.pk]
+            }
+        )
+
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(SystemNotification.objects.count(), 2)
+
+        notification: SystemNotification = SystemNotification.objects.get(user_id=user_2.pk)
+        self.assertEqual(notification.user_id, user_2.pk)
+        self.assertEqual(notification.type_id, SystemNotificationType.Handbook.BLOG_POSTS.value)
+        self.assertEqual(notification.event_id, NotificationEvent.Handbook.BLOG_POSTS_NEW.value)
+        self.assertEqual(notification.message, f"New post from {self.post_user.username}.")
+        self.assertEqual(notification.payload, {
+            "post_id": 10,
+            "from_user": {
+                "id": self.post_user.pk,
+                "username": self.post_user.username
+            }
+        })
+
+        notification: SystemNotification = SystemNotification.objects.get(user_id=user_4.pk)
+        self.assertEqual(notification.user_id, user_4.pk)
+        self.assertEqual(notification.type_id, SystemNotificationType.Handbook.BLOG_POSTS.value)
+        self.assertEqual(notification.event_id, NotificationEvent.Handbook.BLOG_POSTS_NEW.value)
+        self.assertEqual(notification.message, f"New post from {self.post_user.username}.")
+        self.assertEqual(notification.payload, {
+            "post_id": 10,
+            "from_user": {
+                "id": self.post_user.pk,
+                "username": self.post_user.username
+            }
         })
 
     def test_unknown_action(self):
