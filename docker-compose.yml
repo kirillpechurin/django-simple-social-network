@@ -16,7 +16,7 @@ services:
       - simple-social-network
     ports:
       - "9000:8000"
-    command: bash -c "sh /app/entrypoint.sh"
+    command: bash -c "sleep 5 && sh /app/entrypoint.sh"
 
   db:
     container_name: db-simple-social-network
