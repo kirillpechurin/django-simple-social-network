@@ -12,8 +12,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = bool(int(os.getenv("DEBUG")))
 
-ALLOWED_HOSTS = []
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # extensions
+    "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
 
     # apps
@@ -93,6 +92,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -144,7 +144,17 @@ PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", 60 * 60 * 24 * 
 CONFIRM_EMAIL_TIMEOUT = int(os.getenv("CONFIRM_EMAIL_TIMEOUT", 60 * 60 * 24 * 10))  # Default 10 days.
 
 # Hosts
+HOST = "http://web:8000"
 PUBLIC_HOST = os.getenv("PUBLIC_HOST", "REPLACE_ME").rstrip("/")
+
+ALLOWED_HOSTS = [
+    "web"
+]
+## CSRF
+CSRF_TRUSTED_ORIGINS = [
+    # Local
+    "http://0.0.0.0:8000",
+]
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
