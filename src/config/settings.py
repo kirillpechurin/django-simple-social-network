@@ -173,3 +173,9 @@ EMAIL_SSL_KEYFILE = None
 EMAIL_TIMEOUT = None
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "REPLACE_ME")
+
+# Test configuration
+TEST_RUNNER = 'common.tests.TestRunner'
+TEST_OUTPUT_VERBOSE = 1
+TEST_OUTPUT_DIR = ".github/reports/tests"
+TEST_OUTPUT_DESCRIPTIONS = False
