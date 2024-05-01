@@ -128,10 +128,15 @@ jobs:
         run: |
           echo "TEST_OPTS=${{ env.TEST_OPTS }},--rcfile=test_coverage/rcfiles/.notifications.coveragerc" >> $GITHUB_ENV
       -
+        name: Collect tests common
+        if: steps.filter.outputs.common == 'true'
+        run: |
+          echo "TEST_OPTS=${{ env.TEST_OPTS }},--rcfile=test_coverage/rcfiles/.common.coveragerc" >> $GITHUB_ENV
+      -
         name: Collect tests default
         if: ${{ !env.TEST_OPTS }}
         run: |
-          echo "TEST_OPTS=--rcfile=test_coverage/rcfiles/.blog.coveragerc,--rcfile=test_coverage/rcfiles/.users.coveragerc,--rcfile=test_coverage/rcfiles/.notifications.coveragerc" >> $GITHUB_ENV
+          echo "TEST_OPTS=--rcfile=test_coverage/rcfiles/.blog.coveragerc,--rcfile=test_coverage/rcfiles/.users.coveragerc,--rcfile=test_coverage/rcfiles/.notifications.coveragerc,--rcfile=test_coverage/rcfiles/.common.coveragerc" >> $GITHUB_ENV
       -
         name: Run tests
         run: >

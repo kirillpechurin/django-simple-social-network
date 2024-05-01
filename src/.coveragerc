@@ -3,6 +3,7 @@ relative_files = True
 omit =
     */tests/*
     */migrations/*
+    */management/*
 
 [xml]
     output = .github/reports/tests_coverage/common.xml
