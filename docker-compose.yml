@@ -1,0 +1,54 @@
+services:
+  web:
+    container_name: web-simple-social-network
+    build:
+      context: ./src
+    expose:
+      - "8000"
+    volumes:
+      - ./src/:/app
+      - web-static-data:/app/static
+    env_file:
+      - ./src/.env
+    depends_on:
+      - db
+    networks:
+      - simple-social-network
+    ports:
+      - "9000:8000"
+    command: bash -c "sleep 5 && sh /app/entrypoint.sh"
+
+  db:
+    container_name: db-simple-social-network
+    image: postgres:14.11
+    env_file:
+      - ./db/.env
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+    networks:
+      - simple-social-network
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+
+  nginx:
+    container_name: nginx-simple-social-network
+    image: nginx:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - web-static-data:/app/static
+    depends_on:
+      - web
+    networks:
+      - simple-social-network
+
+volumes:
+  web-static-data:
+  db-data:
+
+networks:
+  simple-social-network:
+    driver: bridge

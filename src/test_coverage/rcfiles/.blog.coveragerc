@@ -1,0 +1,17 @@
+[run]
+relative_files = True
+omit =
+    */tests/*
+    */migrations/*
+
+source =
+    config
+    common
+    blog
+
+command_line = manage.py test blog.tests --noinput
+
+data_file = test_coverage/data_files/.coverage.blog
+
+[xml]
+    output = .github/reports/tests_coverage/coverage_blog.xml
