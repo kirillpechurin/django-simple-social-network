@@ -104,11 +104,6 @@ jobs:
           export EMAIL_USE_SSL=0
           export DEFAULT_FROM_EMAIL=no-reply@simple-social-network.com
         
-          echo ${PWD}
-          echo $(ls)
-          echo "in src"
-          echo $(ls src)
-          echo ${{ github.sha }}
           envsubst < ./src/.env.tests.template > ./src/.env.tests
           envsubst < ./db/.env.tests.template > ./db/.env.tests
       -
