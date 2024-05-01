@@ -25,7 +25,7 @@ social network systems.
 ___
 
 ### Technical part
-* The application is implemented using [Django Rest Framework](#https://www.django-rest-framework.org/).
+* The application is implemented using [Django Rest Framework](https://www.django-rest-framework.org/).
 * PostgreSQL is used for data storage.
 * JWT is used for authorization.
 * Sending emails with SMTP.
