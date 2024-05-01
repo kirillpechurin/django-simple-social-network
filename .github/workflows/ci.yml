@@ -1,0 +1,168 @@
+name: "CI"
+run-name: "CI"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+      - dev
+
+env:
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_REPOSITORY }}:${{ github.sha }}
+
+jobs:
+  build:
+    name: Build and push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}
+  test:
+    name: Testing the Docker image
+    needs:
+      - build
+    env:
+      MOUNT_TEST_REPORTS: ./github_reports/tests
+      MOUNT_TEST_COVERAGE_REPORTS: ./github_reports/test_coverage
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Setup paths filters
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            blog:
+              - './src/blog/**'
+            notifications:
+              - './src/notifications/**'
+            users:
+              - './src/users/**'
+            common:
+              - './src/common/**'
+              - './src/config/**'
+      -
+        name: Setup environment
+        run: |
+          export SECRET_KEY=example-secret-key
+          export DEBUG=1
+    
+          export DB_NAME=simple-social-network-db-tests
+          export DB_USER=simple-social-network-db-user-tests
+          export DB_PASSWORD=simple-social-network-db-password-tests
+          export DB_HOST=db-tests
+          export DB_PORT=5432
+    
+          export POSTGRES_USER=$DB_USER
+          export POSTGRES_PASSWORD=$DB_PASSWORD
+          export POSTGRES_DB=$DB_NAME
+          
+          export JWT_ALGORITHM=HS256
+          export JWT_SIGNING_KEY=example-jwt-signing-key
+    
+          export PASSWORD_RESET_TIMEOUT=100
+          export CONFIRM_EMAIL_TIMEOUT=100
+    
+          export PUBLIC_HOST=http://localhost:3000
+    
+          export DEFAULT_FROM_EMAIL=email-from@sample.com
+          
+          export EMAIL_HOST=smtp.example.com
+          export EMAIL_PORT=25
+          export EMAIL_HOST_USER=sample
+          export EMAIL_HOST_PASSWORD=sample
+          export EMAIL_USE_TLS=0
+          export EMAIL_USE_SSL=0
+          export DEFAULT_FROM_EMAIL=no-reply@simple-social-network.com
+        
+          echo ${PWD}
+          echo $(ls)
+          echo "in src"
+          echo $(ls src)
+          echo ${{ github.sha }}
+          envsubst < ./src/.env.tests.template > ./src/.env.tests
+          envsubst < ./db/.env.tests.template > ./db/.env.tests
+      -
+        name: Up dependencies
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d
+          echo "Waiting 3 seconds for containers up"
+          sleep 3
+      -
+        name: Collect tests blog
+        if: steps.filter.outputs.blog == 'true' || steps.filter.outputs.common == 'true'
+        run: |
+          echo "TEST_OPTS=${{ env.TEST_OPTS }},--rcfile=test_coverage/rcfiles/.blog.coveragerc" >> $GITHUB_ENV
+      -
+        name: Collect tests users
+        if: steps.filter.outputs.users == 'true' || steps.filter.outputs.common == 'true'
+        run: |
+          echo "TEST_OPTS=${{ env.TEST_OPTS }},--rcfile=test_coverage/rcfiles/.users.coveragerc" >> $GITHUB_ENV
+      -
+        name: Collect tests notifications
+        if: steps.filter.outputs.notifications == 'true' || steps.filter.outputs.common == 'true'
+        run: |
+          echo "TEST_OPTS=${{ env.TEST_OPTS }},--rcfile=test_coverage/rcfiles/.notifications.coveragerc" >> $GITHUB_ENV
+      -
+        name: Collect tests default
+        if: ${{ !env.TEST_OPTS }}
+        run: |
+          echo "TEST_OPTS=--rcfile=test_coverage/rcfiles/.blog.coveragerc,--rcfile=test_coverage/rcfiles/.users.coveragerc,--rcfile=test_coverage/rcfiles/.notifications.coveragerc" >> $GITHUB_ENV
+      -
+        name: Run tests
+        run: >
+          docker run --rm
+          --name web-simple-social-network-tests
+          --env-file ./src/.env.tests
+          -e TEST_OPTS="${{ env.TEST_OPTS }}"
+          --network simple-social-network-network-tests
+          --volume "${{ env.MOUNT_TEST_REPORTS }}:/app/.github/reports/tests"
+          --volume "${{ env.MOUNT_TEST_COVERAGE_REPORTS }}:/app/.github/reports/tests_coverage"
+          ${{ env.IMAGE_NAME }}
+          sh test.sh
+      -
+        name: Down dependencies
+        run: docker-compose -f docker-compose.tests.yml down
+      -
+        name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ${{ env.MOUNT_TEST_REPORTS }}/
+      -
+        name: Upload test coverage results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-coverage-results
+          path: ${{ env.MOUNT_TEST_COVERAGE_REPORTS }}/common.xml
