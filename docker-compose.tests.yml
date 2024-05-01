@@ -1,0 +1,15 @@
+services:
+  db-tests:
+    container_name: db-simple-social-network-tests
+    image: postgres:14.11
+    expose:
+      - 5432
+    networks:
+      - simple-social-network-network-tests
+    env_file:
+      - ./db/.env.tests
+
+networks:
+  simple-social-network-network-tests:
+    name: simple-social-network-network-tests
+    driver: bridge
