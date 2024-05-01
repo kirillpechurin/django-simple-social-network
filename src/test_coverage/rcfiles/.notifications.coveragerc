@@ -1,0 +1,17 @@
+[run]
+relative_files = True
+omit =
+    */tests/*
+    */migrations/*
+
+source =
+    config
+    common
+    notifications
+
+command_line = manage.py test notifications.tests --noinput
+
+data_file = test_coverage/data_files/.coverage.notifications
+
+[xml]
+    output = .github/reports/tests_coverage/coverage_notifications.xml
