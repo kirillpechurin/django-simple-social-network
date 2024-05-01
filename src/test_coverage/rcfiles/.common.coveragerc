@@ -1,0 +1,17 @@
+[run]
+relative_files = True
+omit =
+    */tests/*
+    */migrations/*
+    */management/*
+
+source =
+    config
+    common
+
+command_line = manage.py test common.tests --noinput
+
+data_file = test_coverage/data_files/.coverage.common
+
+[xml]
+    output = .github/reports/tests_coverage/coverage_common.xml
