@@ -110,7 +110,7 @@ ___
 3. Run `python3 --version` and make sure you have python version `3.10` or higher.
 4. `python3 -m venv venv` - Creating a virtual python environment in the venv folder .
 5. `source venv/bin/activate` - Activate the virtual environment.
-6. `pip3 install -r requirements.txt && pip3 install -r requirements.tests.txt` - Installing dependencies.
+6. `pip3 install -r requirements.txt` - Installing dependencies.
 7. You are already to start!
    Run following command
 
